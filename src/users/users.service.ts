@@ -69,17 +69,31 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  async setPasswordResetToken(id: string, token: string, expires: Date): Promise<void> {
-    await this.repo.update(id, { passwordResetToken: token, passwordResetExpires: expires });
+  async setPasswordResetToken(
+    id: string,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.repo.update(id, {
+      passwordResetToken: token,
+      passwordResetExpires: expires,
+    });
   }
 
   async resetPassword(id: string, newPassword: string): Promise<void> {
     const hashed = await bcrypt.hash(newPassword, 12);
-    await this.repo.update(id, { password: hashed, passwordResetToken: null, passwordResetExpires: null });
+    await this.repo.update(id, {
+      password: hashed,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+    });
   }
 
   async markEmailVerified(id: string): Promise<void> {
-    await this.repo.update(id, { isEmailVerified: true, emailVerificationToken: null });
+    await this.repo.update(id, {
+      isEmailVerified: true,
+      emailVerificationToken: null,
+    });
   }
 
   async changePassword(id: string, dto: ChangePasswordDto): Promise<void> {
