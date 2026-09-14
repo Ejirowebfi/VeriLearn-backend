@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 
@@ -16,20 +20,31 @@ describe('Courses (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
 
     // Login as seeded instructor
     const instrRes = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
-      .send({ email: 'instructor@verilearn.io', password: 'Instructor@123456' });
+      .send({
+        email: 'instructor@verilearn.io',
+        password: 'Instructor@123456',
+      });
     instructorToken = instrRes.body.accessToken;
 
     // Register a student
     const ts = Date.now();
     const stuRes = await request(app.getHttpServer())
       .post('/api/v1/auth/register')
-      .send({ email: `student-${ts}@test.com`, firstName: 'Stu', lastName: 'Dent', password: 'Password123!' });
+      .send({
+        email: `student-${ts}@test.com`,
+        firstName: 'Stu',
+        lastName: 'Dent',
+        password: 'Password123!',
+      });
     studentToken = stuRes.body.accessToken;
   });
 
@@ -175,7 +190,7 @@ describe('Courses (e2e)', () => {
   describe('GET /health', () => {
     it('returns health status', async () => {
       const res = await request(app.getHttpServer())
-        .get('/api/health')
+        .get('/api/v1/health')
         .expect(200);
 
       expect(res.body).toHaveProperty('status');

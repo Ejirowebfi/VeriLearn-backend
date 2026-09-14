@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
-  let accessToken: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -14,7 +17,10 @@ describe('Auth (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
   });
 
@@ -37,18 +43,25 @@ describe('Auth (e2e)', () => {
       expect(res.body).toHaveProperty('accessToken');
       expect(res.body).toHaveProperty('refreshToken');
       expect(res.body.user).toHaveProperty('email');
-      accessToken = res.body.accessToken;
     });
 
     it('returns 409 on duplicate email', async () => {
       const email = `dup-${Date.now()}@test.com`;
-      await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({ email, firstName: 'A', lastName: 'B', password: 'Password123!' });
+      await request(app.getHttpServer()).post('/api/v1/auth/register').send({
+        email,
+        firstName: 'A',
+        lastName: 'B',
+        password: 'Password123!',
+      });
 
       await request(app.getHttpServer())
         .post('/api/v1/auth/register')
-        .send({ email, firstName: 'A', lastName: 'B', password: 'Password123!' })
+        .send({
+          email,
+          firstName: 'A',
+          lastName: 'B',
+          password: 'Password123!',
+        })
         .expect(409);
     });
 
@@ -64,9 +77,12 @@ describe('Auth (e2e)', () => {
     const email = `login-${Date.now()}@test.com`;
 
     beforeAll(async () => {
-      await request(app.getHttpServer())
-        .post('/api/v1/auth/register')
-        .send({ email, firstName: 'Login', lastName: 'User', password: 'Password123!' });
+      await request(app.getHttpServer()).post('/api/v1/auth/register').send({
+        email,
+        firstName: 'Login',
+        lastName: 'User',
+        password: 'Password123!',
+      });
     });
 
     it('logs in with valid credentials', async () => {
@@ -76,7 +92,6 @@ describe('Auth (e2e)', () => {
         .expect(200);
 
       expect(res.body).toHaveProperty('accessToken');
-      accessToken = res.body.accessToken;
     });
 
     it('returns 401 with wrong password', async () => {
@@ -112,7 +127,12 @@ describe('Auth (e2e)', () => {
       const email = `refresh-${Date.now()}@test.com`;
       const reg = await request(app.getHttpServer())
         .post('/api/v1/auth/register')
-        .send({ email, firstName: 'R', lastName: 'T', password: 'Password123!' });
+        .send({
+          email,
+          firstName: 'R',
+          lastName: 'T',
+          password: 'Password123!',
+        });
 
       const res = await request(app.getHttpServer())
         .post('/api/v1/auth/refresh')
@@ -135,7 +155,12 @@ describe('Auth (e2e)', () => {
       const email = `me-${Date.now()}@test.com`;
       const reg = await request(app.getHttpServer())
         .post('/api/v1/auth/register')
-        .send({ email, firstName: 'Me', lastName: 'User', password: 'Password123!' });
+        .send({
+          email,
+          firstName: 'Me',
+          lastName: 'User',
+          password: 'Password123!',
+        });
 
       const res = await request(app.getHttpServer())
         .get('/api/v1/users/me')
@@ -146,9 +171,7 @@ describe('Auth (e2e)', () => {
     });
 
     it('returns 401 without token', async () => {
-      await request(app.getHttpServer())
-        .get('/api/v1/users/me')
-        .expect(401);
+      await request(app.getHttpServer()).get('/api/v1/users/me').expect(401);
     });
   });
 });
