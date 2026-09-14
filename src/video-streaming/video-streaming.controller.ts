@@ -1,5 +1,20 @@
-import { Controller, Get, Param, Query, Req, Res, UseGuards, Request, Post } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+  Request,
+  Post,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { Response, Request as ExpressRequest } from 'express';
 import { VideoStreamingService } from './video-streaming.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
