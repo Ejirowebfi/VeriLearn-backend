@@ -31,7 +31,9 @@ export class HealthController {
 
   @SkipThrottle()
   @Get()
-  @ApiOperation({ summary: 'Health check with DB, Redis, and Elasticsearch status' })
+  @ApiOperation({
+    summary: 'Health check with DB, Redis, and Elasticsearch status',
+  })
   async check() {
     const [db, redis, elasticsearch] = await Promise.all([
       this.checkDb(),
