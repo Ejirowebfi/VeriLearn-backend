@@ -210,7 +210,9 @@ export class CoursesService {
   }
 
   async completeCourse(courseId: string, userId: string): Promise<Enrollment> {
-    const enrollment = await this.enrollmentRepo.findOne({ where: { courseId, userId } });
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: { courseId, userId },
+    });
     if (!enrollment) throw new NotFoundException('Enrollment not found');
     enrollment.isCompleted = true;
     enrollment.completedAt = new Date();
