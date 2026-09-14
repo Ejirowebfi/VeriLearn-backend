@@ -25,7 +25,8 @@ export class ConnectionPoolService implements OnModuleInit {
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     if (this.state === CircuitState.OPEN) {
-      if (Date.now() < this.nextAttempt) throw new Error('Circuit breaker OPEN — database unavailable');
+      if (Date.now() < this.nextAttempt)
+        throw new Error('Circuit breaker OPEN — database unavailable');
       this.state = CircuitState.HALF_OPEN;
     }
     try {
