@@ -25,8 +25,19 @@ export class VideoStreamingService implements OnModuleInit {
   private readonly tokenTtl = 3600; // 1 hour
 
   constructor(private readonly config: ConfigService) {
-    this.storageBase = config.get<string>('VIDEO_STORAGE_PATH', './storage/videos');
-    this.tokenSecret = config.get<string>('VIDEO_TOKEN_SECRET', 'video-secret-change-me');
+    this.storageBase = path.resolve(
+      config.get<string>('VIDEO_STORAGE_PATH', './storage/videos'),
+    );
+    const secret = config.get<string>('VIDEO_TOKEN_SECRET');
+    if (!secret) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('VIDEO_TOKEN_SECRET must be set in production');
+      }
+      this.logger.warn(
+        'VIDEO_TOKEN_SECRET not set — using an insecure default for local development only',
+      );
+    }
+    this.tokenSecret = secret || 'video-secret-change-me';
   }
 
   onModuleInit() {
