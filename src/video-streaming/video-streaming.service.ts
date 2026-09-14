@@ -176,7 +176,9 @@ export class VideoStreamingService implements OnModuleInit {
     if (rangeHeader) {
       const [startStr, endStr] = rangeHeader.replace('bytes=', '').split('-');
       const start = parseInt(startStr, 10);
-      const end = endStr ? parseInt(endStr, 10) : Math.min(start + 1024 * 1024, fileSize - 1);
+      const end = endStr
+        ? parseInt(endStr, 10)
+        : Math.min(start + 1024 * 1024, fileSize - 1);
       const chunkSize = end - start + 1;
 
       res.status(206);
