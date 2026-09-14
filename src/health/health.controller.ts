@@ -41,7 +41,10 @@ export class HealthController {
       this.checkEs(),
     ]);
 
-    const allHealthy = db.status === 'ok' && redis.status === 'ok' && elasticsearch.status === 'ok';
+    const allHealthy =
+      db.status === 'ok' &&
+      redis.status === 'ok' &&
+      elasticsearch.status === 'ok';
 
     return {
       status: allHealthy ? 'ok' : 'degraded',
