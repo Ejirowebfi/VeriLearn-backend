@@ -28,7 +28,14 @@ import redisConfig from './config/redis.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig, stellarConfig, emailConfig, redisConfig],
+      load: [
+        appConfig,
+        databaseConfig,
+        jwtConfig,
+        stellarConfig,
+        emailConfig,
+        redisConfig,
+      ],
       envFilePath: '.env',
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
