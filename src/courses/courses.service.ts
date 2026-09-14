@@ -34,7 +34,8 @@ export class CoursesService {
   constructor(
     @InjectRepository(Course) private readonly courseRepo: Repository<Course>,
     @InjectRepository(Lesson) private readonly lessonRepo: Repository<Lesson>,
-    @InjectRepository(Enrollment) private readonly enrollmentRepo: Repository<Enrollment>,
+    @InjectRepository(Enrollment)
+    private readonly enrollmentRepo: Repository<Enrollment>,
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly searchService: SearchService,
     private readonly emailService: EmailService,
