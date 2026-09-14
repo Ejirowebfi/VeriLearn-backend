@@ -174,10 +174,18 @@ export class CoursesService {
     return saved;
   }
 
-  async removeLesson(courseId: string, lessonId: string, userId: string, role: UserRole): Promise<void> {
+  async removeLesson(
+    courseId: string,
+    lessonId: string,
+    userId: string,
+    role: UserRole,
+  ): Promise<void> {
     const course = await this.findById(courseId);
-    if (course.instructorId !== userId && role !== UserRole.ADMIN) throw new ForbiddenException();
-    const lesson = await this.lessonRepo.findOne({ where: { id: lessonId, courseId } });
+    if (course.instructorId !== userId && role !== UserRole.ADMIN)
+      throw new ForbiddenException();
+    const lesson = await this.lessonRepo.findOne({
+      where: { id: lessonId, courseId },
+    });
     if (!lesson) throw new NotFoundException('Lesson not found');
     await this.lessonRepo.remove(lesson);
     await this.cache.del(courseKey(courseId));
