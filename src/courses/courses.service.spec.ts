@@ -188,28 +188,49 @@ describe('CoursesService', () => {
     it('throws ForbiddenException when user is not owner', async () => {
       mockCache.get.mockResolvedValue(mockCourse);
       await expect(
-        service.update('course-1', { title: 'New' }, 'other-user', UserRole.STUDENT),
+        service.update(
+          'course-1',
+          { title: 'New' },
+          'other-user',
+          UserRole.STUDENT,
+        ),
       ).rejects.toThrow(ForbiddenException);
     });
 
     it('updates course as owner and invalidates cache', async () => {
       mockCache.get.mockResolvedValue(mockCourse);
-      mockCourseRepo.save.mockResolvedValue({ ...mockCourse, title: 'Updated' });
+      mockCourseRepo.save.mockResolvedValue({
+        ...mockCourse,
+        title: 'Updated',
+      });
       mockCache.del.mockResolvedValue(undefined);
       mockCache.store.keys.mockResolvedValue([]);
 
-      const result = await service.update('course-1', { title: 'Updated' }, 'user-1', UserRole.INSTRUCTOR);
+      const result = await service.update(
+        'course-1',
+        { title: 'Updated' },
+        'user-1',
+        UserRole.INSTRUCTOR,
+      );
       expect(result.title).toBe('Updated');
       expect(mockCache.del).toHaveBeenCalledWith('courses:course-1');
     });
 
     it('allows admin to update any course', async () => {
       mockCache.get.mockResolvedValue(mockCourse);
-      mockCourseRepo.save.mockResolvedValue({ ...mockCourse, title: 'Admin Updated' });
+      mockCourseRepo.save.mockResolvedValue({
+        ...mockCourse,
+        title: 'Admin Updated',
+      });
       mockCache.del.mockResolvedValue(undefined);
       mockCache.store.keys.mockResolvedValue([]);
 
-      const result = await service.update('course-1', { title: 'Admin Updated' }, 'admin-id', UserRole.ADMIN);
+      const result = await service.update(
+        'course-1',
+        { title: 'Admin Updated' },
+        'admin-id',
+        UserRole.ADMIN,
+      );
       expect(result.title).toBe('Admin Updated');
     });
   });
