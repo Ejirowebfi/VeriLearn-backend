@@ -102,7 +102,14 @@ export class UsersService {
     if (!valid) throw new BadRequestException('Current password is incorrect');
     user.password = await bcrypt.hash(dto.newPassword, 12);
     await this.repo.save(user);
-    this.monitoring.audit({ userId: id, action: 'CHANGE_PASSWORD', resource: 'user', success: true }).catch(() => null);
+    this.monitoring
+      .audit({
+        userId: id,
+        action: 'CHANGE_PASSWORD',
+        resource: 'user',
+        success: true,
+      })
+      .catch(() => null);
   }
 
   async remove(id: string): Promise<void> {
