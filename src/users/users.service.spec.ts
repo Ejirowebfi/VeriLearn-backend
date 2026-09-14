@@ -126,11 +126,16 @@ describe('UsersService', () => {
     });
 
     it('throws BadRequestException when current password is wrong', async () => {
-      mockRepo.findOne.mockResolvedValue({ ...mockUser, password: 'different-hash' });
-      await expect(service.changePassword('user-1', {
-        currentPassword: 'wrong-password',
-        newPassword: 'new-password',
-      })).rejects.toThrow(BadRequestException);
+      mockRepo.findOne.mockResolvedValue({
+        ...mockUser,
+        password: 'different-hash',
+      });
+      await expect(
+        service.changePassword('user-1', {
+          currentPassword: 'wrong-password',
+          newPassword: 'new-password',
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
