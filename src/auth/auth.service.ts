@@ -32,10 +32,22 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const verificationToken = crypto.randomBytes(32).toString('hex');
-    const user = await this.usersService.create({ ...dto, emailVerificationToken: verificationToken });
+    const user = await this.usersService.create({
+      ...dto,
+      emailVerificationToken: verificationToken,
+    });
     this.emailService.sendWelcome(user.email, user.firstName).catch(() => null);
-    this.emailService.sendEmailVerification(user.email, verificationToken).catch(() => null);
-    this.monitoring.audit({ userId: user.id, action: 'REGISTER', resource: 'auth', success: true }).catch(() => null);
+    this.emailService
+      .sendEmailVerification(user.email, verificationToken)
+      .catch(() => null);
+    this.monitoring
+      .audit({
+        userId: user.id,
+        action: 'REGISTER',
+        resource: 'auth',
+        success: true,
+      })
+      .catch(() => null);
     return this.generateTokens(user);
   }
 
