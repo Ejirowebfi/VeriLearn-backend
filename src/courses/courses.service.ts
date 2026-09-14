@@ -1,10 +1,25 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  ConflictException,
+  Inject,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { Course, Lesson, Enrollment, CourseStatus } from './entities/course.entity';
-import { CreateCourseDto, UpdateCourseDto, CreateLessonDto } from './dto/course.dto';
+import {
+  Course,
+  Lesson,
+  Enrollment,
+  CourseStatus,
+} from './entities/course.entity';
+import {
+  CreateCourseDto,
+  UpdateCourseDto,
+  CreateLessonDto,
+} from './dto/course.dto';
 import { UserRole } from '../users/entities/user.entity';
 import { SearchService } from '../search/search.service';
 import { EmailService } from '../email/email.service';
