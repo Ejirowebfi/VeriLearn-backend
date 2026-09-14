@@ -21,37 +21,60 @@ export class BlockchainService {
 
   constructor(
     private readonly config: ConfigService,
-    @InjectRepository(Credential) private readonly credentialRepo: Repository<Credential>,
-    @InjectRepository(Enrollment) private readonly enrollmentRepo: Repository<Enrollment>,
+    @InjectRepository(Credential)
+    private readonly credentialRepo: Repository<Credential>,
+    @InjectRepository(Enrollment)
+    private readonly enrollmentRepo: Repository<Enrollment>,
     private readonly monitoring: MonitoringService,
   ) {
     const horizonUrl = config.get<string>('stellar.horizonUrl');
     this.network = config.get<string>('stellar.network');
-    this.networkPassphrase = this.network === 'mainnet'
-      ? StellarSdk.Networks.PUBLIC
-      : StellarSdk.Networks.TESTNET;
+    this.networkPassphrase =
+      this.network === 'mainnet'
+        ? StellarSdk.Networks.PUBLIC
+        : StellarSdk.Networks.TESTNET;
     this.server = new StellarSdk.Horizon.Server(horizonUrl);
   }
 
-  async issueCredential(userId: string, courseId: string, stellarPublicKey: string): Promise<Credential> {
+  async issueCredential(
+    userId: string,
+    courseId: string,
+    stellarPublicKey: string,
+  ): Promise<Credential> {
+    const enrollment = await this.enrollmentRepo.findOne({
+      where: { courseId, userId },
+    });
+    if (!enrollment)
+      throw new ForbiddenException('You are not enrolled in this course');
+    if (!enrollment.isCompleted)
+      throw new ForbiddenException('Course not yet completed');
+
     const secretKey = this.config.get<string>('stellar.secretKey');
-    if (!secretKey) throw new BadRequestException('Stellar secret key not configured');
+    if (!secretKey)
+      throw new BadRequestException('Stellar secret key not configured');
 
     try {
       const issuerKeypair = StellarSdk.Keypair.fromSecret(secretKey);
       const account = await this.server.loadAccount(issuerKeypair.publicKey());
 
-      const metadata = JSON.stringify({ userId, courseId, issuedAt: new Date().toISOString(), platform: 'VeriLearn' });
+      const metadata = JSON.stringify({
+        userId,
+        courseId,
+        issuedAt: new Date().toISOString(),
+        platform: 'VeriLearn',
+      });
 
       const transaction = new StellarSdk.TransactionBuilder(account, {
         fee: StellarSdk.BASE_FEE,
         networkPassphrase: this.networkPassphrase,
       })
-        .addOperation(StellarSdk.Operation.manageData({
-          name: `verilearn:credential:${courseId}`,
-          value: Buffer.from(metadata).slice(0, 64),
-          source: issuerKeypair.publicKey(),
-        }))
+        .addOperation(
+          StellarSdk.Operation.manageData({
+            name: `verilearn:credential:${courseId}`,
+            value: Buffer.from(metadata).slice(0, 64),
+            source: issuerKeypair.publicKey(),
+          }),
+        )
         .setTimeout(30)
         .build();
 
