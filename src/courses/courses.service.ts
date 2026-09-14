@@ -51,16 +51,30 @@ export class CoursesService {
     const course = this.courseRepo.create({ ...dto, instructorId });
     const saved = await this.courseRepo.save(course);
     await this.invalidateCourseListCache();
-    this.searchService.indexDocument('courses', saved.id, {
-      title: saved.title, description: saved.description,
-      category: saved.category, tags: saved.tags, status: saved.status,
-    }).catch(() => null);
+    this.searchService
+      .indexDocument('courses', saved.id, {
+        title: saved.title,
+        description: saved.description,
+        category: saved.category,
+        tags: saved.tags,
+        status: saved.status,
+      })
+      .catch(() => null);
     return saved;
   }
 
-  async findAll(published = true, page = 1, limit = 20): Promise<{ data: Course[]; total: number; page: number; limit: number }> {
+  async findAll(
+    published = true,
+    page = 1,
+    limit = 20,
+  ): Promise<{ data: Course[]; total: number; page: number; limit: number }> {
     const cacheKey = `${ALL_COURSES_KEY}:${published}:${page}:${limit}`;
-    const cached = await this.cache.get<{ data: Course[]; total: number; page: number; limit: number }>(cacheKey);
+    const cached = await this.cache.get<{
+      data: Course[];
+      total: number;
+      page: number;
+      limit: number;
+    }>(cacheKey);
     if (cached) return cached;
     const where = published ? { status: CourseStatus.PUBLISHED } : {};
     const [data, total] = await this.courseRepo.findAndCount({
