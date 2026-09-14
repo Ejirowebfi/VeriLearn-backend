@@ -16,7 +16,10 @@ export class SearchService implements OnModuleInit {
     this.client = new Client({
       node: config.get<string>('ELASTICSEARCH_URL', 'http://localhost:9200'),
       auth: config.get('ELASTICSEARCH_USERNAME')
-        ? { username: config.get('ELASTICSEARCH_USERNAME'), password: config.get('ELASTICSEARCH_PASSWORD') }
+        ? {
+            username: config.get('ELASTICSEARCH_USERNAME'),
+            password: config.get('ELASTICSEARCH_PASSWORD'),
+          }
         : undefined,
     });
   }
