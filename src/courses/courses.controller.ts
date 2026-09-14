@@ -112,16 +112,36 @@ export class CoursesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update a lesson' })
-  updateLesson(@Param('id') id: string, @Param('lessonId') lessonId: string, @Body() dto: CreateLessonDto, @Request() req) {
-    return this.coursesService.updateLesson(id, lessonId, dto, req.user.id, req.user.role);
+  updateLesson(
+    @Param('id') id: string,
+    @Param('lessonId') lessonId: string,
+    @Body() dto: CreateLessonDto,
+    @Request() req,
+  ) {
+    return this.coursesService.updateLesson(
+      id,
+      lessonId,
+      dto,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @Delete(':id/lessons/:lessonId')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete a lesson' })
-  removeLesson(@Param('id') id: string, @Param('lessonId') lessonId: string, @Request() req) {
-    return this.coursesService.removeLesson(id, lessonId, req.user.id, req.user.role);
+  removeLesson(
+    @Param('id') id: string,
+    @Param('lessonId') lessonId: string,
+    @Request() req,
+  ) {
+    return this.coursesService.removeLesson(
+      id,
+      lessonId,
+      req.user.id,
+      req.user.role,
+    );
   }
 
   @Post(':id/enroll')
