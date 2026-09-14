@@ -1,8 +1,28 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { CoursesService } from './courses.service';
-import { CreateCourseDto, UpdateCourseDto, CreateLessonDto } from './dto/course.dto';
+import {
+  CreateCourseDto,
+  UpdateCourseDto,
+  CreateLessonDto,
+} from './dto/course.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
