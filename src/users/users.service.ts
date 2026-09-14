@@ -24,7 +24,9 @@ export class UsersService {
     private readonly monitoring: MonitoringService,
   ) {}
 
-  async create(dto: CreateUserDto & { emailVerificationToken?: string }): Promise<User> {
+  async create(
+    dto: CreateUserDto & { emailVerificationToken?: string },
+  ): Promise<User> {
     const exists = await this.repo.findOne({ where: { email: dto.email } });
     if (exists) throw new ConflictException('Email already registered');
     const hashed = await bcrypt.hash(dto.password, 12);
