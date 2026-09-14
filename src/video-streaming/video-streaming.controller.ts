@@ -76,7 +76,12 @@ export class VideoStreamingController {
     @Req() req: ExpressRequest,
     @Res() res: Response,
   ) {
-    return this.videoService.streamRange(lessonId, token, req.headers.range, res);
+    return this.videoService.streamRange(
+      lessonId,
+      token,
+      req.headers.range,
+      res,
+    );
   }
 
   @Post('drm/license/:keyId')
