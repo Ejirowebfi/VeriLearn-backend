@@ -196,7 +196,11 @@ export class VideoStreamingService implements OnModuleInit {
 
   getDrmLicense(keyId: string): { key: string; keyId: string } {
     // Stub: in production integrate with Widevine/PlayReady/FairPlay
-    const key = crypto.createHash('sha256').update(`${keyId}:${this.tokenSecret}`).digest('hex').slice(0, 32);
+    const key = crypto
+      .createHash('sha256')
+      .update(`${keyId}:${this.tokenSecret}`)
+      .digest('hex')
+      .slice(0, 32);
     return { keyId, key };
   }
 }
