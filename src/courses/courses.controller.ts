@@ -80,7 +80,11 @@ export class CoursesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update a course' })
-  update(@Param('id') id: string, @Body() dto: UpdateCourseDto, @Request() req) {
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateCourseDto,
+    @Request() req,
+  ) {
     return this.coursesService.update(id, dto, req.user.id, req.user.role);
   }
 
