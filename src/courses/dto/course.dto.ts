@@ -27,8 +27,14 @@ export class UpdateCourseDto {
   @ApiPropertyOptional() @IsOptional() @IsString() title?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() description?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() thumbnailUrl?: string;
-  @ApiPropertyOptional({ enum: CourseStatus }) @IsOptional() @IsEnum(CourseStatus) status?: CourseStatus;
-  @ApiPropertyOptional({ enum: CourseLevel }) @IsOptional() @IsEnum(CourseLevel) level?: CourseLevel;
+  @ApiPropertyOptional({ enum: CourseStatus })
+  @IsOptional()
+  @IsEnum(CourseStatus)
+  status?: CourseStatus;
+  @ApiPropertyOptional({ enum: CourseLevel })
+  @IsOptional()
+  @IsEnum(CourseLevel)
+  level?: CourseLevel;
   @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(0) price?: number;
   @ApiPropertyOptional() @IsOptional() @IsString() category?: string;
   @ApiPropertyOptional() @IsOptional() @IsArray() tags?: string[];
