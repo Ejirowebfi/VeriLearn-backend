@@ -243,7 +243,10 @@ describe('CoursesService', () => {
 
       await service.remove('course-1', 'user-1', UserRole.INSTRUCTOR);
       expect(mockCourseRepo.remove).toHaveBeenCalled();
-      expect(mockSearchService.deleteDocument).toHaveBeenCalledWith('courses', 'course-1');
+      expect(mockSearchService.deleteDocument).toHaveBeenCalledWith(
+        'courses',
+        'course-1',
+      );
     });
 
     it('throws ForbiddenException when user does not own course', async () => {
