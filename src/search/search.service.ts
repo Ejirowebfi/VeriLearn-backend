@@ -67,7 +67,12 @@ export class SearchService implements OnModuleInit {
     }
   }
 
-  async search<T>(index: string, query: string, from = 0, size = 10): Promise<SearchResult<T>> {
+  async search<T>(
+    index: string,
+    query: string,
+    from = 0,
+    size = 10,
+  ): Promise<SearchResult<T>> {
     try {
       const response = await this.client.search<T>({
         index,
