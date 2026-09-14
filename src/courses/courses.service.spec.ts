@@ -113,13 +113,20 @@ describe('CoursesService', () => {
       mockCache.store.keys.mockResolvedValue([]);
 
       const result = await service.create(
-        { title: 'Stellar Basics', description: 'Learn Stellar blockchain' } as any,
+        {
+          title: 'Stellar Basics',
+          description: 'Learn Stellar blockchain',
+        } as any,
         'user-1',
       );
 
       expect(result).toEqual(mockCourse);
       expect(mockCache.store.keys).toHaveBeenCalledWith('courses:all:*');
-      expect(mockSearchService.indexDocument).toHaveBeenCalledWith('courses', 'course-1', expect.any(Object));
+      expect(mockSearchService.indexDocument).toHaveBeenCalledWith(
+        'courses',
+        'course-1',
+        expect.any(Object),
+      );
     });
   });
 
