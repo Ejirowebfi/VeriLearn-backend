@@ -72,27 +72,38 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     usersService = module.get(UsersService);
     jwtService = module.get(JwtService);
-    emailService = module.get(EmailService);
   });
 
   describe('validateUser', () => {
     it('returns user when credentials are valid', async () => {
       const hashed = await bcrypt.hash('password123', 10);
-      usersService.findByEmail.mockResolvedValue({ ...mockUser, password: hashed } as any);
-      const result = await service.validateUser('test@example.com', 'password123');
+      usersService.findByEmail.mockResolvedValue({
+        ...mockUser,
+        password: hashed,
+      } as any);
+      const result = await service.validateUser(
+        'test@example.com',
+        'password123',
+      );
       expect(result).toBeDefined();
       expect(result.email).toBe('test@example.com');
     });
 
     it('returns null when password is wrong', async () => {
-      usersService.findByEmail.mockResolvedValue({ ...mockUser, password: 'different-hash' } as any);
+      usersService.findByEmail.mockResolvedValue({
+        ...mockUser,
+        password: 'different-hash',
+      } as any);
       const result = await service.validateUser('test@example.com', 'wrong');
       expect(result).toBeNull();
     });
 
     it('returns null when user not found', async () => {
       usersService.findByEmail.mockResolvedValue(null);
-      const result = await service.validateUser('notfound@example.com', 'password');
+      const result = await service.validateUser(
+        'notfound@example.com',
+        'password',
+      );
       expect(result).toBeNull();
     });
   });
