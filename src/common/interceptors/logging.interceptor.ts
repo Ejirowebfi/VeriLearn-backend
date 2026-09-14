@@ -33,14 +33,22 @@ export class LoggingInterceptor implements NestInterceptor {
           const status = res.statusCode;
           this.logger.log(`${method} ${url} ${status} — ${ms}ms`);
           end?.({ status: String(status) });
-          this.monitoring?.httpRequestsTotal.inc({ method, route: url, status: String(status) });
+          this.monitoring?.httpRequestsTotal.inc({
+            method,
+            route: url,
+            status: String(status),
+          });
         },
         error: (err) => {
           const ms = Date.now() - start;
           const status = err.status || 500;
           this.logger.error(`${method} ${url} ${status} — ${ms}ms`);
           end?.({ status: String(status) });
-          this.monitoring?.httpRequestsTotal.inc({ method, route: url, status: String(status) });
+          this.monitoring?.httpRequestsTotal.inc({
+            method,
+            route: url,
+            status: String(status),
+          });
         },
       }),
     );
