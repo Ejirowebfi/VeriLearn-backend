@@ -117,7 +117,9 @@ export class UsersService {
     await this.repo.remove(user);
   }
 
-  async generateMfaSecret(userId: string): Promise<{ secret: string; qrCode: string }> {
+  async generateMfaSecret(
+    userId: string,
+  ): Promise<{ secret: string; qrCode: string }> {
     const user = await this.findById(userId);
     const secret = authenticator.generateSecret();
     const otpAuthUrl = authenticator.keyuri(user.email, 'VeriLearn', secret);
