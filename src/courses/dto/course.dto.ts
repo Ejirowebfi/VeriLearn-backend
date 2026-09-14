@@ -14,7 +14,10 @@ export class CreateCourseDto {
   @ApiProperty() @IsString() title: string;
   @ApiProperty() @IsString() description: string;
   @ApiPropertyOptional() @IsOptional() @IsString() thumbnailUrl?: string;
-  @ApiPropertyOptional({ enum: CourseLevel }) @IsOptional() @IsEnum(CourseLevel) level?: CourseLevel;
+  @ApiPropertyOptional({ enum: CourseLevel })
+  @IsOptional()
+  @IsEnum(CourseLevel)
+  level?: CourseLevel;
   @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(0) price?: number;
   @ApiPropertyOptional() @IsOptional() @IsString() category?: string;
   @ApiPropertyOptional() @IsOptional() @IsArray() tags?: string[];
