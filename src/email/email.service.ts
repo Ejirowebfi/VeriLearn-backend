@@ -106,7 +106,11 @@ export class EmailService {
       </div>`;
   }
 
-  private completionTemplate(firstName: string, courseTitle: string, txHash: string): string {
+  private completionTemplate(
+    firstName: string,
+    courseTitle: string,
+    txHash: string,
+  ): string {
     return `
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
         <h2 style="color:#4F46E5">🎉 Course Completed!</h2>
