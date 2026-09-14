@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, OnModuleDestroy } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -9,7 +9,7 @@ import Redis from 'ioredis';
 
 @ApiTags('health')
 @Controller('health')
-export class HealthController {
+export class HealthController implements OnModuleDestroy {
   private readonly es: EsClient;
   private readonly redis: Redis;
 
@@ -27,6 +27,11 @@ export class HealthController {
       lazyConnect: true,
       enableOfflineQueue: false,
     });
+  }
+
+  async onModuleDestroy() {
+    this.redis.disconnect();
+    await this.es.close();
   }
 
   @SkipThrottle()

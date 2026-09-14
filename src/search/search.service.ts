@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from '@elastic/elasticsearch';
 
@@ -8,7 +13,7 @@ export interface SearchResult<T> {
 }
 
 @Injectable()
-export class SearchService implements OnModuleInit {
+export class SearchService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(SearchService.name);
   private client: Client;
 
@@ -22,6 +27,10 @@ export class SearchService implements OnModuleInit {
           }
         : undefined,
     });
+  }
+
+  async onModuleDestroy() {
+    await this.client.close();
   }
 
   async onModuleInit() {
