@@ -47,7 +47,11 @@ export class SearchService implements OnModuleInit {
     }
   }
 
-  async indexDocument(index: string, id: string, body: Record<string, any>): Promise<void> {
+  async indexDocument(
+    index: string,
+    id: string,
+    body: Record<string, any>,
+  ): Promise<void> {
     try {
       await this.client.index({ index, id, document: body });
     } catch (err) {
