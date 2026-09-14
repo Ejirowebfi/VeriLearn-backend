@@ -193,8 +193,11 @@ export class CoursesService {
 
   async enroll(courseId: string, userId: string): Promise<Enrollment> {
     const course = await this.findById(courseId);
-    if (course.status !== CourseStatus.PUBLISHED) throw new ForbiddenException('Course not available');
-    const existing = await this.enrollmentRepo.findOne({ where: { courseId, userId } });
+    if (course.status !== CourseStatus.PUBLISHED)
+      throw new ForbiddenException('Course not available');
+    const existing = await this.enrollmentRepo.findOne({
+      where: { courseId, userId },
+    });
     if (existing) throw new ConflictException('Already enrolled');
     const enrollment = this.enrollmentRepo.create({ courseId, userId });
     await this.courseRepo.increment({ id: courseId }, 'enrollmentCount', 1);
