@@ -131,7 +131,8 @@ export class UsersService {
 
   async enableMfa(userId: string, token: string): Promise<void> {
     const user = await this.findById(userId);
-    if (!user.mfaSecret) throw new BadRequestException('MFA secret not generated');
+    if (!user.mfaSecret)
+      throw new BadRequestException('MFA secret not generated');
     const valid = authenticator.verify({ token, secret: user.mfaSecret });
     if (!valid) throw new BadRequestException('Invalid MFA token');
     user.isMfaEnabled = true;
