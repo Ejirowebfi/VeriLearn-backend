@@ -131,19 +131,30 @@ describe('AuthService', () => {
     });
 
     it('returns MFA challenge when MFA is enabled', async () => {
-      const result = await service.login({ ...mockUser, isMfaEnabled: true } as any);
+      const result = await service.login({
+        ...mockUser,
+        isMfaEnabled: true,
+      } as any);
       expect(result).toEqual({ requiresMfa: true, userId: 'user-1' });
     });
   });
 
   describe('refreshToken', () => {
     it('throws UnauthorizedException on invalid token', async () => {
-      jwtService.verify.mockImplementation(() => { throw new Error('invalid'); });
-      await expect(service.refreshToken('bad-token')).rejects.toThrow(UnauthorizedException);
+      jwtService.verify.mockImplementation(() => {
+        throw new Error('invalid');
+      });
+      await expect(service.refreshToken('bad-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('returns new tokens on valid refresh token', async () => {
-      jwtService.verify.mockReturnValue({ sub: 'user-1', email: 'test@example.com', role: UserRole.STUDENT });
+      jwtService.verify.mockReturnValue({
+        sub: 'user-1',
+        email: 'test@example.com',
+        role: UserRole.STUDENT,
+      });
       usersService.findById.mockResolvedValue(mockUser as any);
       const result = await service.refreshToken('valid-refresh-token');
       expect(result.accessToken).toBe('mock-token');
