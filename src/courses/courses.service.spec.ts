@@ -168,13 +168,19 @@ describe('CoursesService', () => {
 
       const result = await service.findById('course-1');
       expect(result).toEqual(mockCourse);
-      expect(mockCache.set).toHaveBeenCalledWith('courses:course-1', mockCourse, 300);
+      expect(mockCache.set).toHaveBeenCalledWith(
+        'courses:course-1',
+        mockCourse,
+        300,
+      );
     });
 
     it('throws NotFoundException when course not found', async () => {
       mockCache.get.mockResolvedValue(null);
       mockCourseRepo.findOne.mockResolvedValue(null);
-      await expect(service.findById('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findById('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
