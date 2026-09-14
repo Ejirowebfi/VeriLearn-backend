@@ -198,18 +198,24 @@ describe('AuthService', () => {
         ...mockUser,
         passwordResetExpires: new Date(Date.now() - 60000),
       } as any);
-      await expect(service.resetPassword('expired-token', 'newPass')).rejects.toThrow(BadRequestException);
+      await expect(
+        service.resetPassword('expired-token', 'newPass'),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('throws on invalid token', async () => {
       usersService.findByResetToken.mockResolvedValue(null);
-      await expect(service.resetPassword('invalid', 'newPass')).rejects.toThrow(BadRequestException);
+      await expect(service.resetPassword('invalid', 'newPass')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
   describe('verifyEmail', () => {
     it('marks email as verified with valid token', async () => {
-      usersService.findByEmailVerificationToken.mockResolvedValue(mockUser as any);
+      usersService.findByEmailVerificationToken.mockResolvedValue(
+        mockUser as any,
+      );
       usersService.markEmailVerified.mockResolvedValue(undefined);
       const result = await service.verifyEmail('valid-token');
       expect(usersService.markEmailVerified).toHaveBeenCalledWith('user-1');
