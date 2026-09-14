@@ -283,7 +283,6 @@ Unit tests (`npm run test`) are fully mocked — no external services required. 
 src/
 ├── main.ts                          # Bootstrap: Swagger, pipes, guards, CORS, Helmet
 ├── app.module.ts                    # Root module — imports all feature modules
-├── app.controller.ts                # GET /health
 │
 ├── config/                          # Typed config factories (registerAs)
 │   ├── app.config.ts
@@ -361,6 +360,10 @@ src/
 │   └── entities/
 │       └── audit-log.entity.ts
 │
+├── health/                          # Liveness/readiness check
+│   ├── health.module.ts
+│   └── health.controller.ts         # GET /health — checks DB, Redis, Elasticsearch
+│
 └── common/                          # Shared cross-cutting concerns
     ├── filters/
     │   └── http-exception.filter.ts  # Standardised error responses
@@ -429,6 +432,9 @@ Serves pre-encoded video files from a local storage directory. Stream tokens are
 
 ### Monitoring Module
 Uses **prom-client** to expose standard Prometheus metrics plus four custom metrics. The `MonitoringService` also provides an `audit()` method used throughout the app to write structured audit log entries. The `/monitoring/metrics` endpoint is intentionally left unauthenticated so Prometheus can scrape it without a token (restrict at the network/firewall level in production).
+
+### Health Module
+Exposes `GET /api/v1/health`, which checks Postgres (`SELECT 1`), Redis (`PING`), and Elasticsearch (`ping()`) in parallel and returns `{ status: 'ok' | 'degraded', services: { db, redis, elasticsearch } }`. Each dependency check is wrapped in its own try/catch, so one failing service reports `degraded` rather than throwing a 500. Suitable for use as a container orchestrator liveness/readiness probe.
 
 ### Database Module
 Configures TypeORM with async factory injection. The `ConnectionPoolService` wraps database operations in a **circuit breaker**: after 5 consecutive failures it opens the circuit for 30 seconds, preventing a cascade of failed DB calls from overwhelming the system.
