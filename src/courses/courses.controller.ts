@@ -100,7 +100,11 @@ export class CoursesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Add lesson to course' })
-  addLesson(@Param('id') id: string, @Body() dto: CreateLessonDto, @Request() req) {
+  addLesson(
+    @Param('id') id: string,
+    @Body() dto: CreateLessonDto,
+    @Request() req,
+  ) {
     return this.coursesService.addLesson(id, dto, req.user.id, req.user.role);
   }
 
