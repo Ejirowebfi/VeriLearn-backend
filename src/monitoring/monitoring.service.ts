@@ -14,7 +14,10 @@ export class MonitoringService implements OnModuleInit {
   readonly activeConnections: client.Gauge<string>;
   readonly dbQueryDuration: client.Histogram<string>;
 
-  constructor(@InjectRepository(AuditLog) private readonly auditRepo: Repository<AuditLog>) {
+  constructor(
+    @InjectRepository(AuditLog)
+    private readonly auditRepo: Repository<AuditLog>,
+  ) {
     client.collectDefaultMetrics({ prefix: 'verilearn_' });
 
     this.httpRequestsTotal = new client.Counter({
