@@ -139,13 +139,17 @@ export class BlockchainService {
     return this.credentialRepo.find({ where: { userId } });
   }
 
-  async getAccountBalance(publicKey: string): Promise<StellarSdk.Horizon.HorizonApi.BalanceLine[]> {
+  async getAccountBalance(
+    publicKey: string,
+  ): Promise<StellarSdk.Horizon.HorizonApi.BalanceLine[]> {
     try {
       const account = await this.server.loadAccount(publicKey);
       return account.balances;
     } catch (err) {
       this.logger.error(`Failed to load account ${publicKey}`, err);
-      throw new BadRequestException('Invalid Stellar public key or account not found');
+      throw new BadRequestException(
+        'Invalid Stellar public key or account not found',
+      );
     }
   }
 
