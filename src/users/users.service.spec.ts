@@ -91,7 +91,9 @@ describe('UsersService', () => {
 
     it('throws NotFoundException when not found', async () => {
       mockRepo.findOne.mockResolvedValue(null);
-      await expect(service.findById('missing-id')).rejects.toThrow(NotFoundException);
+      await expect(service.findById('missing-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
