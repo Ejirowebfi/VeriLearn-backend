@@ -30,7 +30,9 @@ export class SearchService implements OnModuleInit {
       this.logger.log('Elasticsearch connected');
       await this.ensureIndices();
     } catch {
-      this.logger.warn('Elasticsearch not available — search features degraded');
+      this.logger.warn(
+        'Elasticsearch not available — search features degraded',
+      );
     }
   }
 
