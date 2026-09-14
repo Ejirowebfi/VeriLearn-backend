@@ -37,7 +37,9 @@ async function seed() {
     console.log('✓ Admin user created: admin@verilearn.io / Admin@123456');
   }
 
-  const instructorExists = await userRepo.findOne({ where: { email: 'instructor@verilearn.io' } });
+  const instructorExists = await userRepo.findOne({
+    where: { email: 'instructor@verilearn.io' },
+  });
   if (!instructorExists) {
     await userRepo.save({
       email: 'instructor@verilearn.io',
