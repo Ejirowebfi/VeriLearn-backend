@@ -91,46 +91,82 @@ export class CoursesService {
   async findById(id: string): Promise<Course> {
     const cached = await this.cache.get<Course>(courseKey(id));
     if (cached) return cached;
-    const course = await this.courseRepo.findOne({ where: { id }, relations: ['instructor', 'lessons'] });
+    const course = await this.courseRepo.findOne({
+      where: { id },
+      relations: ['instructor', 'lessons'],
+    });
     if (!course) throw new NotFoundException('Course not found');
     await this.cache.set(courseKey(id), course, CACHE_TTL);
     return course;
   }
 
-  async update(id: string, dto: UpdateCourseDto, userId: string, role: UserRole): Promise<Course> {
+  async update(
+    id: string,
+    dto: UpdateCourseDto,
+    userId: string,
+    role: UserRole,
+  ): Promise<Course> {
     const course = await this.findById(id);
-    if (course.instructorId !== userId && role !== UserRole.ADMIN) throw new ForbiddenException();
+    if (course.instructorId !== userId && role !== UserRole.ADMIN)
+      throw new ForbiddenException();
     Object.assign(course, dto);
     const saved = await this.courseRepo.save(course);
-    await Promise.all([this.cache.del(courseKey(id)), this.invalidateCourseListCache()]);
-    this.searchService.indexDocument('courses', id, {
-      title: saved.title, description: saved.description,
-      category: saved.category, tags: saved.tags, status: saved.status,
-    }).catch(() => null);
+    await Promise.all([
+      this.cache.del(courseKey(id)),
+      this.invalidateCourseListCache(),
+    ]);
+    this.searchService
+      .indexDocument('courses', id, {
+        title: saved.title,
+        description: saved.description,
+        category: saved.category,
+        tags: saved.tags,
+        status: saved.status,
+      })
+      .catch(() => null);
     return saved;
   }
 
   async remove(id: string, userId: string, role: UserRole): Promise<void> {
     const course = await this.findById(id);
-    if (course.instructorId !== userId && role !== UserRole.ADMIN) throw new ForbiddenException();
+    if (course.instructorId !== userId && role !== UserRole.ADMIN)
+      throw new ForbiddenException();
     await this.courseRepo.remove(course);
-    await Promise.all([this.cache.del(courseKey(id)), this.invalidateCourseListCache()]);
+    await Promise.all([
+      this.cache.del(courseKey(id)),
+      this.invalidateCourseListCache(),
+    ]);
     this.searchService.deleteDocument('courses', id).catch(() => null);
   }
 
-  async addLesson(courseId: string, dto: CreateLessonDto, userId: string, role: UserRole): Promise<Lesson> {
+  async addLesson(
+    courseId: string,
+    dto: CreateLessonDto,
+    userId: string,
+    role: UserRole,
+  ): Promise<Lesson> {
     const course = await this.findById(courseId);
-    if (course.instructorId !== userId && role !== UserRole.ADMIN) throw new ForbiddenException();
+    if (course.instructorId !== userId && role !== UserRole.ADMIN)
+      throw new ForbiddenException();
     const lesson = this.lessonRepo.create({ ...dto, courseId });
     const saved = await this.lessonRepo.save(lesson);
     await this.cache.del(courseKey(courseId));
     return saved;
   }
 
-  async updateLesson(courseId: string, lessonId: string, dto: Partial<CreateLessonDto>, userId: string, role: UserRole): Promise<Lesson> {
+  async updateLesson(
+    courseId: string,
+    lessonId: string,
+    dto: Partial<CreateLessonDto>,
+    userId: string,
+    role: UserRole,
+  ): Promise<Lesson> {
     const course = await this.findById(courseId);
-    if (course.instructorId !== userId && role !== UserRole.ADMIN) throw new ForbiddenException();
-    const lesson = await this.lessonRepo.findOne({ where: { id: lessonId, courseId } });
+    if (course.instructorId !== userId && role !== UserRole.ADMIN)
+      throw new ForbiddenException();
+    const lesson = await this.lessonRepo.findOne({
+      where: { id: lessonId, courseId },
+    });
     if (!lesson) throw new NotFoundException('Lesson not found');
     Object.assign(lesson, dto);
     const saved = await this.lessonRepo.save(lesson);
