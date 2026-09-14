@@ -293,7 +293,10 @@ describe('CoursesService', () => {
     it('marks enrollment as completed', async () => {
       const enrollment = { ...mockEnrollment };
       mockEnrollmentRepo.findOne.mockResolvedValue(enrollment);
-      mockEnrollmentRepo.save.mockResolvedValue({ ...enrollment, isCompleted: true });
+      mockEnrollmentRepo.save.mockResolvedValue({
+        ...enrollment,
+        isCompleted: true,
+      });
 
       const result = await service.completeCourse('course-1', 'user-2');
       expect(result.isCompleted).toBe(true);
