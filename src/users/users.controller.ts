@@ -43,38 +43,53 @@ export class UsersController {
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
-  getMe(@Request() req) { return this.usersService.findById(req.user.id); }
+  getMe(@Request() req) {
+    return this.usersService.findById(req.user.id);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
   findOne(@Param('id') id: string, @Request() req) {
-    if (req.user.id !== id && req.user.role !== UserRole.ADMIN) throw new ForbiddenException();
+    if (req.user.id !== id && req.user.role !== UserRole.ADMIN)
+      throw new ForbiddenException();
     return this.usersService.findById(id);
   }
 
   @Patch('me')
   @ApiOperation({ summary: 'Update current user profile' })
-  updateMe(@Request() req, @Body() dto: UpdateUserDto) { return this.usersService.update(req.user.id, dto); }
+  updateMe(@Request() req, @Body() dto: UpdateUserDto) {
+    return this.usersService.update(req.user.id, dto);
+  }
 
   @Post('me/change-password')
   @ApiOperation({ summary: 'Change password' })
-  changePassword(@Request() req, @Body() dto: ChangePasswordDto) { return this.usersService.changePassword(req.user.id, dto); }
+  changePassword(@Request() req, @Body() dto: ChangePasswordDto) {
+    return this.usersService.changePassword(req.user.id, dto);
+  }
 
   @Post('me/mfa/generate')
   @ApiOperation({ summary: 'Generate MFA secret and QR code' })
-  generateMfa(@Request() req) { return this.usersService.generateMfaSecret(req.user.id); }
+  generateMfa(@Request() req) {
+    return this.usersService.generateMfaSecret(req.user.id);
+  }
 
   @Post('me/mfa/enable')
   @ApiOperation({ summary: 'Enable MFA with TOTP token' })
-  enableMfa(@Request() req, @Body('token') token: string) { return this.usersService.enableMfa(req.user.id, token); }
+  enableMfa(@Request() req, @Body('token') token: string) {
+    return this.usersService.enableMfa(req.user.id, token);
+  }
 
   @Post('me/mfa/disable')
   @ApiOperation({ summary: 'Disable MFA' })
-  disableMfa(@Request() req) { return this.usersService.disableMfa(req.user.id); }
+  disableMfa(@Request() req) {
+    return this.usersService.disableMfa(req.user.id);
+  }
 
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Delete user (admin)' })
-  remove(@Param('id') id: string) { return this.usersService.remove(id); }
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
+  }
 }
