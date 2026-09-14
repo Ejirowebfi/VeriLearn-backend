@@ -7,7 +7,10 @@ import { BlockchainController } from './blockchain.controller';
 import { MonitoringModule } from '../monitoring/monitoring.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Credential, Enrollment]), MonitoringModule],
+  imports: [
+    TypeOrmModule.forFeature([Credential, Enrollment]),
+    MonitoringModule,
+  ],
   providers: [BlockchainService],
   controllers: [BlockchainController],
   exports: [BlockchainService],
