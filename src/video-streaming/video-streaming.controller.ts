@@ -59,7 +59,11 @@ export class VideoStreamingController {
   @Get(':lessonId/dash')
   @ApiOperation({ summary: 'Stream DASH manifest' })
   @ApiQuery({ name: 'token', required: true })
-  streamDash(@Param('lessonId') lessonId: string, @Query('token') token: string, @Res() res: Response) {
+  streamDash(
+    @Param('lessonId') lessonId: string,
+    @Query('token') token: string,
+    @Res() res: Response,
+  ) {
     return this.videoService.streamDash(lessonId, token, res);
   }
 
