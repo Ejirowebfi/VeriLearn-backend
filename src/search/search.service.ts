@@ -87,8 +87,11 @@ export class SearchService implements OnModuleInit {
         },
       });
       return {
-        hits: response.hits.hits.map((h) => ({ id: h._id, ...h._source } as T)),
-        total: typeof response.hits.total === 'number' ? response.hits.total : response.hits.total?.value ?? 0,
+        hits: response.hits.hits.map((h) => ({ id: h._id, ...h._source }) as T),
+        total:
+          typeof response.hits.total === 'number'
+            ? response.hits.total
+            : (response.hits.total?.value ?? 0),
       };
     } catch (err) {
       this.logger.error('Search failed', err);
