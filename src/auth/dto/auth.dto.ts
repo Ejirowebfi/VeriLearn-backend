@@ -13,7 +13,8 @@ export class RegisterDto {
   @ApiProperty() @IsString() @MinLength(8) password: string;
 }
 
-export class MfaVerifyDto {
+export class VerifyMfaLoginDto {
+  @ApiProperty() @IsString() userId: string;
   @ApiProperty() @IsString() token: string;
 }
 
