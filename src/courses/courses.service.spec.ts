@@ -1,9 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ForbiddenException,
+  ConflictException,
+} from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { CoursesService } from './courses.service';
-import { Course, Lesson, Enrollment, CourseStatus } from './entities/course.entity';
+import {
+  Course,
+  Lesson,
+  Enrollment,
+  CourseStatus,
+} from './entities/course.entity';
 import { SearchService } from '../search/search.service';
 import { EmailService } from '../email/email.service';
 import { UsersService } from '../users/users.service';
