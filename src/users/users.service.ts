@@ -34,8 +34,14 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  async findAll(page = 1, limit = 20): Promise<{ data: User[]; total: number; page: number; limit: number }> {
-    const [data, total] = await this.repo.findAndCount({ skip: (page - 1) * limit, take: limit });
+  async findAll(
+    page = 1,
+    limit = 20,
+  ): Promise<{ data: User[]; total: number; page: number; limit: number }> {
+    const [data, total] = await this.repo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
     return { data, total, page, limit };
   }
 
