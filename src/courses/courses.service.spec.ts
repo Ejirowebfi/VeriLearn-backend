@@ -273,12 +273,19 @@ describe('CoursesService', () => {
     it('throws ConflictException when already enrolled', async () => {
       mockCache.get.mockResolvedValue(mockCourse);
       mockEnrollmentRepo.findOne.mockResolvedValue(mockEnrollment);
-      await expect(service.enroll('course-1', 'user-2')).rejects.toThrow(ConflictException);
+      await expect(service.enroll('course-1', 'user-2')).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('throws ForbiddenException when course is not published', async () => {
-      mockCache.get.mockResolvedValue({ ...mockCourse, status: CourseStatus.DRAFT });
-      await expect(service.enroll('course-1', 'user-2')).rejects.toThrow(ForbiddenException);
+      mockCache.get.mockResolvedValue({
+        ...mockCourse,
+        status: CourseStatus.DRAFT,
+      });
+      await expect(service.enroll('course-1', 'user-2')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 
