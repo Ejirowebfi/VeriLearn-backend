@@ -47,38 +47,90 @@ export class VideoStreamingService implements OnModuleInit {
     }
   }
 
+  // Only allow simple path segments (letters, digits, dash, underscore, dot) with no traversal or separators.
+  private assertSafePathSegment(segment: string): void {
+    if (
+      !segment ||
+      segment.includes('..') ||
+      /[/\\\0]/.test(segment) ||
+      !/^[\w.-]+$/.test(segment)
+    ) {
+      throw new ForbiddenException('Invalid path segment');
+    }
+  }
+
+  private resolveMediaPath(lessonId: string, ...parts: string[]): string {
+    this.assertSafePathSegment(lessonId);
+    parts.forEach((p) => this.assertSafePathSegment(p));
+    const resolved = path.resolve(this.storageBase, lessonId, ...parts);
+    if (
+      resolved !== this.storageBase &&
+      !resolved.startsWith(this.storageBase + path.sep)
+    ) {
+      throw new ForbiddenException('Invalid path');
+    }
+    return resolved;
+  }
+
   generateStreamToken(lessonId: string, userId: string): string {
-    const payload: StreamToken = { lessonId, userId, expiresAt: Date.now() + this.tokenTtl * 1000 };
+    const payload: StreamToken = {
+      lessonId,
+      userId,
+      expiresAt: Date.now() + this.tokenTtl * 1000,
+    };
     const data = Buffer.from(JSON.stringify(payload)).toString('base64url');
-    const sig = crypto.createHmac('sha256', this.tokenSecret).update(data).digest('base64url');
+    const sig = crypto
+      .createHmac('sha256', this.tokenSecret)
+      .update(data)
+      .digest('base64url');
     return `${data}.${sig}`;
   }
 
   verifyStreamToken(token: string): StreamToken {
     const [data, sig] = token.split('.');
-    const expected = crypto.createHmac('sha256', this.tokenSecret).update(data).digest('base64url');
+    const expected = crypto
+      .createHmac('sha256', this.tokenSecret)
+      .update(data)
+      .digest('base64url');
     if (sig !== expected) throw new ForbiddenException('Invalid stream token');
-    const payload: StreamToken = JSON.parse(Buffer.from(data, 'base64url').toString());
-    if (Date.now() > payload.expiresAt) throw new ForbiddenException('Stream token expired');
+    const payload: StreamToken = JSON.parse(
+      Buffer.from(data, 'base64url').toString(),
+    );
+    if (Date.now() > payload.expiresAt)
+      throw new ForbiddenException('Stream token expired');
     return payload;
   }
 
-  async streamHls(lessonId: string, token: string, res: Response): Promise<void> {
+  async streamHls(
+    lessonId: string,
+    token: string,
+    res: Response,
+  ): Promise<void> {
     const payload = this.verifyStreamToken(token);
-    if (payload.lessonId !== lessonId) throw new ForbiddenException('Token mismatch');
+    if (payload.lessonId !== lessonId)
+      throw new ForbiddenException('Token mismatch');
 
-    const manifestPath = path.join(this.storageBase, lessonId, 'index.m3u8');
-    if (!fs.existsSync(manifestPath)) throw new NotFoundException('HLS manifest not found');
+    const manifestPath = this.resolveMediaPath(lessonId, 'index.m3u8');
+    if (!fs.existsSync(manifestPath))
+      throw new NotFoundException('HLS manifest not found');
 
     res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
     res.setHeader('Cache-Control', 'no-cache');
     fs.createReadStream(manifestPath).pipe(res);
   }
 
-  async streamSegment(lessonId: string, segment: string, token: string, res: Response): Promise<void> {
-    this.verifyStreamToken(token);
-    const segmentPath = path.join(this.storageBase, lessonId, segment);
-    if (!fs.existsSync(segmentPath)) throw new NotFoundException('Segment not found');
+  async streamSegment(
+    lessonId: string,
+    segment: string,
+    token: string,
+    res: Response,
+  ): Promise<void> {
+    const payload = this.verifyStreamToken(token);
+    if (payload.lessonId !== lessonId)
+      throw new ForbiddenException('Token mismatch');
+    const segmentPath = this.resolveMediaPath(lessonId, segment);
+    if (!fs.existsSync(segmentPath))
+      throw new NotFoundException('Segment not found');
 
     const stat = fs.statSync(segmentPath);
     res.setHeader('Content-Type', 'video/mp2t');
