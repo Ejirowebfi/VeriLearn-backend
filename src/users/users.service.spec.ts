@@ -71,9 +71,14 @@ describe('UsersService', () => {
 
     it('throws ConflictException when email already exists', async () => {
       mockRepo.findOne.mockResolvedValue(mockUser);
-      await expect(service.create({
-        email: 'test@example.com', firstName: 'A', lastName: 'B', password: 'pass',
-      })).rejects.toThrow(ConflictException);
+      await expect(
+        service.create({
+          email: 'test@example.com',
+          firstName: 'A',
+          lastName: 'B',
+          password: 'pass',
+        }),
+      ).rejects.toThrow(ConflictException);
     });
   });
 
