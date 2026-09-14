@@ -224,7 +224,9 @@ describe('AuthService', () => {
 
     it('throws on invalid token', async () => {
       usersService.findByEmailVerificationToken.mockResolvedValue(null);
-      await expect(service.verifyEmail('bad-token')).rejects.toThrow(BadRequestException);
+      await expect(service.verifyEmail('bad-token')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });
