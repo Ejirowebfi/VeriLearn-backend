@@ -185,7 +185,10 @@ describe('AuthService', () => {
         passwordResetExpires: new Date(Date.now() + 60000),
       } as any);
       usersService.resetPassword.mockResolvedValue(undefined);
-      const result = await service.resetPassword('valid-token', 'newPassword123');
+      const result = await service.resetPassword(
+        'valid-token',
+        'newPassword123',
+      );
       expect(usersService.resetPassword).toHaveBeenCalled();
       expect(result.message).toContain('successfully');
     });
