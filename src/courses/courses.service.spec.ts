@@ -79,11 +79,26 @@ describe('CoursesService', () => {
         CoursesService,
         { provide: getRepositoryToken(Course), useValue: mockCourseRepo },
         { provide: getRepositoryToken(Lesson), useValue: mockLessonRepo },
-        { provide: getRepositoryToken(Enrollment), useValue: mockEnrollmentRepo },
+        {
+          provide: getRepositoryToken(Enrollment),
+          useValue: mockEnrollmentRepo,
+        },
         { provide: CACHE_MANAGER, useValue: mockCache },
         { provide: SearchService, useValue: mockSearchService },
-        { provide: EmailService, useValue: { sendCourseCompletion: jest.fn().mockResolvedValue(undefined) } },
-        { provide: UsersService, useValue: { findById: jest.fn().mockResolvedValue({ email: 'u@test.com', firstName: 'U' }) } },
+        {
+          provide: EmailService,
+          useValue: {
+            sendCourseCompletion: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: UsersService,
+          useValue: {
+            findById: jest
+              .fn()
+              .mockResolvedValue({ email: 'u@test.com', firstName: 'U' }),
+          },
+        },
       ],
     }).compile();
 
