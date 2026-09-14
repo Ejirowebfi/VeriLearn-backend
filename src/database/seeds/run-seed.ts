@@ -50,17 +50,24 @@ async function seed() {
       isEmailVerified: true,
       isActive: true,
     });
-    console.log('✓ Instructor user created: instructor@verilearn.io / Instructor@123456');
+    console.log(
+      '✓ Instructor user created: instructor@verilearn.io / Instructor@123456',
+    );
   }
 
   const courseRepo = AppDataSource.getRepository('courses');
-  const instructor = await userRepo.findOne({ where: { email: 'instructor@verilearn.io' } });
+  const instructor = await userRepo.findOne({
+    where: { email: 'instructor@verilearn.io' },
+  });
 
-  const courseExists = await courseRepo.findOne({ where: { title: 'Introduction to Stellar Blockchain' } });
+  const courseExists = await courseRepo.findOne({
+    where: { title: 'Introduction to Stellar Blockchain' },
+  });
   if (!courseExists && instructor) {
     await courseRepo.save({
       title: 'Introduction to Stellar Blockchain',
-      description: 'Learn the fundamentals of the Stellar network, Lumens (XLM), and Soroban smart contracts.',
+      description:
+        'Learn the fundamentals of the Stellar network, Lumens (XLM), and Soroban smart contracts.',
       status: 'published',
       level: 'beginner',
       price: 0,
