@@ -90,14 +90,38 @@ export class BlockchainService {
         metadata,
       });
       const saved = await this.credentialRepo.save(credential);
-      await this.enrollmentRepo.update({ courseId, userId }, { credentialTxHash: result.hash });
-      this.monitoring.audit({ userId, action: 'ISSUE_CREDENTIAL', resource: 'credential', resourceId: saved.id, success: true }).catch(() => null);
+      await this.enrollmentRepo.update(
+        { courseId, userId },
+        { credentialTxHash: result.hash },
+      );
+      this.monitoring
+        .audit({
+          userId,
+          action: 'ISSUE_CREDENTIAL',
+          resource: 'credential',
+          resourceId: saved.id,
+          success: true,
+        })
+        .catch(() => null);
       return saved;
     } catch (err) {
       this.logger.error('Failed to issue credential', err);
-      const credential = this.credentialRepo.create({ userId, courseId, stellarPublicKey, isVerified: false });
+      const credential = this.credentialRepo.create({
+        userId,
+        courseId,
+        stellarPublicKey,
+        isVerified: false,
+      });
       const saved = await this.credentialRepo.save(credential);
-      this.monitoring.audit({ userId, action: 'ISSUE_CREDENTIAL_FAILED', resource: 'credential', resourceId: saved.id, success: false }).catch(() => null);
+      this.monitoring
+        .audit({
+          userId,
+          action: 'ISSUE_CREDENTIAL_FAILED',
+          resource: 'credential',
+          resourceId: saved.id,
+          success: false,
+        })
+        .catch(() => null);
       return saved;
     }
   }
