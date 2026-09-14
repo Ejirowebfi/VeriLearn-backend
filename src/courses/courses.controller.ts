@@ -38,7 +38,9 @@ export class CoursesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get my enrollments' })
-  myEnrollments(@Request() req) { return this.coursesService.getEnrollments(req.user.id); }
+  myEnrollments(@Request() req) {
+    return this.coursesService.getEnrollments(req.user.id);
+  }
 
   @SkipThrottle()
   @Get()
