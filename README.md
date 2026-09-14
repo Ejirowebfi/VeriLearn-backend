@@ -109,11 +109,12 @@ The application follows a **modular monolith** pattern — each feature domain i
 ### Blockchain Credential Issuance
 
 1. After course completion, `POST /api/v1/blockchain/credentials/issue` is called with the student's Stellar public key and course ID.
-2. The **BlockchainService** loads the platform's Stellar account via the Horizon API.
-3. It builds a **Stellar transaction** with a `manageData` operation that writes credential metadata (userId, courseId, timestamp) onto the ledger.
-4. The transaction is signed with the platform's secret key and submitted to the Stellar network.
-5. The resulting **transaction hash** is stored in the `credentials` table and returned to the client.
-6. Anyone can verify the credential by querying `GET /api/v1/blockchain/credentials/verify/:txHash` or looking it up on the Stellar explorer.
+2. The **BlockchainService** first checks that the caller has a completed `Enrollment` for that course — a student who never enrolled, or hasn't finished the course, gets a `403 Forbidden` instead of a credential.
+3. It loads the platform's Stellar account via the Horizon API.
+4. It builds a **Stellar transaction** with a `manageData` operation that writes credential metadata (userId, courseId, timestamp) onto the ledger.
+5. The transaction is signed with the platform's secret key and submitted to the Stellar network.
+6. The resulting **transaction hash** is stored in the `credentials` table and returned to the client.
+7. Anyone can verify the credential by querying `GET /api/v1/blockchain/credentials/verify/:txHash` or looking it up on the Stellar explorer.
 
 ### Video Streaming
 
@@ -121,9 +122,11 @@ The application follows a **modular monolith** pattern — each feature domain i
 2. The server generates an **HMAC-SHA256 signed token** containing lessonId, userId, and expiry (1 hour).
 3. The client uses this token as a query parameter to stream:
    - **HLS**: `GET /api/v1/video/:lessonId/hls?token=...` → serves `index.m3u8`
+   - **HLS segments**: `GET /api/v1/video/:lessonId/hls/:segment?token=...` → serves individual `.ts` segments
    - **DASH**: `GET /api/v1/video/:lessonId/dash?token=...` → serves `manifest.mpd`
    - **MP4**: `GET /api/v1/video/:lessonId/mp4?token=...` → supports HTTP byte-range for seeking
-4. The token is verified on every segment/chunk request, preventing hotlinking.
+4. On every endpoint, the server verifies both the token's signature/expiry **and** that the token's embedded `lessonId` matches the `:lessonId` in the URL — a token minted for one lesson cannot be replayed against another lesson's files.
+5. `lessonId` and `segment` path values are validated against a strict allow-list (no `..`, `/`, or `\`) and the resolved file path is re-checked against the storage root before any file read, preventing directory-traversal reads outside `VIDEO_STORAGE_PATH`.
 
 ### Search
 
@@ -191,8 +194,9 @@ cp .env.example .env
 | `DB_HOST` | PostgreSQL host | ✅ |
 | `DB_PASSWORD` | PostgreSQL password | ✅ |
 | `DB_NAME` | Database name (default `verilearn`) | ✅ |
-| `JWT_SECRET` | JWT signing secret — use a long random string | ✅ |
-| `JWT_REFRESH_SECRET` | Refresh token secret | ✅ |
+| `JWT_SECRET` | JWT signing secret — use a long random string | ✅ (app refuses to boot without it when `NODE_ENV=production`) |
+| `JWT_REFRESH_SECRET` | Refresh token secret | ✅ (same production-only enforcement as `JWT_SECRET`) |
+| `CORS_ORIGIN` | Allowed origin(s) for browser requests. Comma-separate multiple origins (e.g. `https://app.example.com,https://admin.example.com`). Unset = no cross-origin requests are allowed | Recommended |
 | `STELLAR_SECRET_KEY` | Stellar account secret key for signing transactions | ✅ |
 | `STELLAR_NETWORK` | `testnet` or `mainnet` | ✅ |
 | `EMAIL_USER` | SMTP username | For email features |
@@ -200,9 +204,9 @@ cp .env.example .env
 | `ELASTICSEARCH_URL` | Elasticsearch URL (default `http://localhost:9200`) | For search |
 | `REDIS_HOST` | Redis host | For caching |
 | `VIDEO_STORAGE_PATH` | Path to video files directory | For streaming |
-| `VIDEO_TOKEN_SECRET` | Secret for signing stream tokens | For streaming |
+| `VIDEO_TOKEN_SECRET` | Secret for signing stream tokens | ✅ (app refuses to boot without it when `NODE_ENV=production`) |
 
-> **Security note:** Never commit `.env` to version control. All secrets should be rotated in production.
+> **Security note:** Never commit `.env` to version control. All secrets should be rotated in production. In development, `JWT_SECRET`, `JWT_REFRESH_SECRET`, and `VIDEO_TOKEN_SECRET` fall back to insecure placeholder values with a warning if unset — in production (`NODE_ENV=production`) the app throws at startup instead of running with a guessable secret.
 
 ---
 
@@ -268,6 +272,8 @@ npm run test:watch    # Watch mode
 npm run test:cov      # Coverage report
 npm run test:e2e      # End-to-end tests
 ```
+
+Unit tests (`npm run test`) are fully mocked — no external services required. `npm run test:e2e` boots the real `AppModule` against live Postgres, Redis, and Elasticsearch, so those services must be running first (`docker-compose up postgres redis elasticsearch -d`), and the database must be migrated and seeded (`npm run migration:run && npm run seed`) since the course e2e spec logs in as the seeded instructor account.
 
 ---
 
@@ -395,10 +401,11 @@ Role enforcement: only `instructor` or `admin` can create/update/delete courses.
 
 ### Blockchain Module
 Integrates with the **Stellar Horizon API** using `@stellar/stellar-sdk`. The credential issuance flow:
-1. Loads the platform's Stellar account
-2. Builds a transaction with a `manageData` operation encoding credential metadata
-3. Signs and submits the transaction
-4. Stores the resulting tx hash in the `credentials` table
+1. Verifies the caller has a completed enrollment in the target course (`403` otherwise)
+2. Loads the platform's Stellar account
+3. Builds a transaction with a `manageData` operation encoding credential metadata
+4. Signs and submits the transaction
+5. Stores the resulting tx hash in the `credentials` table
 
 If the Stellar submission fails (network error, insufficient balance), the credential is saved as `isVerified: false` for retry. Verification is done by querying the Horizon API for the transaction hash.
 
@@ -415,7 +422,7 @@ Wraps the **Elasticsearch Node.js client**. On startup, it pings Elasticsearch a
 Search uses a `multi_match` query with `fuzziness: AUTO`, boosting the `title` field 3× over description, category, and tags.
 
 ### Video Streaming Module
-Serves pre-encoded video files from a local storage directory. Stream tokens are **HMAC-SHA256 signed** payloads containing lessonId, userId, and expiry — no database lookup required on each segment request. Supports:
+Serves pre-encoded video files from a local storage directory. Stream tokens are **HMAC-SHA256 signed** payloads containing lessonId, userId, and expiry — no database lookup required on each segment request. Every stream endpoint checks the token's lessonId against the requested lesson and validates path segments before touching the filesystem. Supports:
 - **HLS** — serves `.m3u8` manifest and `.ts` segments
 - **DASH** — serves `.mpd` manifest
 - **MP4** — supports `Range` headers for browser seek/scrub
@@ -473,7 +480,7 @@ Full interactive documentation is available at `http://localhost:3000/api/docs` 
 | `GET` | `/api/v1/monitoring/metrics` | — | Prometheus metrics |
 | `GET` | `/api/v1/monitoring/audit` | JWT + Admin | All audit logs |
 | `GET` | `/api/v1/monitoring/audit/me` | JWT | My audit logs |
-| `GET` | `/api/health` | — | Health check |
+| `GET` | `/api/v1/health` | — | Health check |
 
 ---
 

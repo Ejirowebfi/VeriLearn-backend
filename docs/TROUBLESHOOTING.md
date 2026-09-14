@@ -11,6 +11,9 @@
 **`Port 3000 already in use`**
 - Change `PORT` in `.env` or kill the process: `lsof -ti:3000 | xargs kill`
 
+**`JWT_SECRET must be set in production` / `JWT_REFRESH_SECRET must be set in production` / `VIDEO_TOKEN_SECRET must be set in production`**
+- These secrets have insecure placeholder fallbacks in development, but the app refuses to boot with `NODE_ENV=production` unless they're explicitly set in `.env` — generate a real random value for each (e.g. `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+
 ### Database
 
 **`relation "users" does not exist`**
@@ -35,7 +38,8 @@
 
 **`CORS policy blocked`**
 - Set `CORS_ORIGIN` in `.env` to your frontend URL
-- For multiple origins use a comma-separated list (requires code change)
+- For multiple origins use a comma-separated list, e.g. `CORS_ORIGIN=https://app.example.com,https://admin.example.com`
+- If `CORS_ORIGIN` is unset, all cross-origin requests are blocked (there is no wildcard fallback) — this is deliberate, since `credentials: true` combined with a wildcard origin is invalid/unsafe
 
 ### Stellar / Blockchain
 
