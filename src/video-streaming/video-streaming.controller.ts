@@ -36,7 +36,11 @@ export class VideoStreamingController {
   @Get(':lessonId/hls')
   @ApiOperation({ summary: 'Stream HLS manifest' })
   @ApiQuery({ name: 'token', required: true })
-  streamHls(@Param('lessonId') lessonId: string, @Query('token') token: string, @Res() res: Response) {
+  streamHls(
+    @Param('lessonId') lessonId: string,
+    @Query('token') token: string,
+    @Res() res: Response,
+  ) {
     return this.videoService.streamHls(lessonId, token, res);
   }
 
