@@ -221,9 +221,14 @@ export class CoursesService {
     // Fire-and-forget completion email
     Promise.all([this.usersService.findById(userId), this.findById(courseId)])
       .then(([user, course]) => {
-        this.emailService.sendCourseCompletion(
-          user.email, user.firstName, course.title, enrollment.credentialTxHash || '',
-        ).catch(() => null);
+        this.emailService
+          .sendCourseCompletion(
+            user.email,
+            user.firstName,
+            course.title,
+            enrollment.credentialTxHash || '',
+          )
+          .catch(() => null);
       })
       .catch(() => null);
 
