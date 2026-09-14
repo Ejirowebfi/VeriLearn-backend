@@ -48,14 +48,24 @@ export class CoursesController {
   @ApiQuery({ name: 'all', required: false, type: Boolean })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
-  findAll(@Query('all') all?: string, @Query('page') page?: string, @Query('limit') limit?: string) {
-    return this.coursesService.findAll(all !== 'true', page ? +page : 1, limit ? +limit : 20);
+  findAll(
+    @Query('all') all?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.coursesService.findAll(
+      all !== 'true',
+      page ? +page : 1,
+      limit ? +limit : 20,
+    );
   }
 
   @SkipThrottle()
   @Get(':id')
   @ApiOperation({ summary: 'Get course details' })
-  findOne(@Param('id') id: string) { return this.coursesService.findById(id); }
+  findOne(@Param('id') id: string) {
+    return this.coursesService.findById(id);
+  }
 
   @Post()
   @ApiBearerAuth()
