@@ -82,6 +82,10 @@ export class MonitoringService implements OnModuleInit {
 
   async getAuditLogs(userId?: string, limit = 50): Promise<AuditLog[]> {
     const where = userId ? { userId } : {};
-    return this.auditRepo.find({ where, order: { createdAt: 'DESC' }, take: limit });
+    return this.auditRepo.find({
+      where,
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
   }
 }
