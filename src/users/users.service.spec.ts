@@ -39,7 +39,10 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: mockRepo },
-        { provide: MonitoringService, useValue: { audit: jest.fn().mockResolvedValue(undefined) } },
+        {
+          provide: MonitoringService,
+          useValue: { audit: jest.fn().mockResolvedValue(undefined) },
+        },
       ],
     }).compile();
 
