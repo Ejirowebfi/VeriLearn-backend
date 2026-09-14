@@ -63,7 +63,12 @@ export class EmailService {
     });
   }
 
-  async sendCourseCompletion(to: string, firstName: string, courseTitle: string, txHash: string): Promise<void> {
+  async sendCourseCompletion(
+    to: string,
+    firstName: string,
+    courseTitle: string,
+    txHash: string,
+  ): Promise<void> {
     await this.send({
       to,
       subject: `Congratulations! You completed "${courseTitle}"`,
