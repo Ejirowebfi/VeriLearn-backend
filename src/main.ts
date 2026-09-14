@@ -16,11 +16,21 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   app.use(helmet());
-  app.enableCors({ origin: config.get('CORS_ORIGIN', '*'), credentials: true });
+  const corsOrigin = config.get<string>('CORS_ORIGIN');
+  app.enableCors({
+    origin: corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : false,
+    credentials: true,
+  });
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(
     app.get(LoggingInterceptor),
