@@ -29,40 +29,50 @@ export class AuthController {
   @Post('register')
   @Throttle({ default: { ttl: 60000, limit: 10 } })
   @ApiOperation({ summary: 'Register a new user' })
-  register(@Body() dto: RegisterDto) { return this.authService.register(dto); }
+  register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
 
   @Post('login')
   @Throttle({ default: { ttl: 60000, limit: 10 } })
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
-  login(@Request() req) { return this.authService.login(req.user); }
+  login(@Request() req) {
+    return this.authService.login(req.user);
+  }
 
   @Post('mfa/verify')
   @Throttle({ default: { ttl: 60000, limit: 10 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify MFA token after login' })
-  verifyMfa(@Body() dto: MfaVerifyDto & { userId: string }) {
+  verifyMfa(@Body() dto: VerifyMfaLoginDto) {
     return this.authService.verifyMfaAndLogin(dto.userId, dto.token);
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
-  refresh(@Body('refreshToken') refreshToken: string) { return this.authService.refreshToken(refreshToken); }
+  refresh(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
+  }
 
   @Post('logout')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout (client should discard tokens)' })
-  logout(@Request() req) { return this.authService.logout(req.user.id); }
+  logout(@Request() req) {
+    return this.authService.logout(req.user.id);
+  }
 
   @Post('forgot-password')
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset email' })
-  forgotPassword(@Body() dto: ForgotPasswordDto) { return this.authService.forgotPassword(dto.email); }
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
