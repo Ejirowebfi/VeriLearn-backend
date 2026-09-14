@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsEnum, IsNumber, IsBoolean, IsArray, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsBoolean,
+  IsArray,
+  Min,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CourseStatus, CourseLevel } from '../entities/course.entity';
 
