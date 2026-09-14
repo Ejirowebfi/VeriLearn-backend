@@ -21,7 +21,9 @@ async function seed() {
 
   const userRepo = AppDataSource.getRepository('users');
 
-  const adminExists = await userRepo.findOne({ where: { email: 'admin@verilearn.io' } });
+  const adminExists = await userRepo.findOne({
+    where: { email: 'admin@verilearn.io' },
+  });
   if (!adminExists) {
     await userRepo.save({
       email: 'admin@verilearn.io',
