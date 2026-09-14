@@ -139,22 +139,36 @@ export class VideoStreamingService implements OnModuleInit {
     fs.createReadStream(segmentPath).pipe(res);
   }
 
-  async streamDash(lessonId: string, token: string, res: Response): Promise<void> {
+  async streamDash(
+    lessonId: string,
+    token: string,
+    res: Response,
+  ): Promise<void> {
     const payload = this.verifyStreamToken(token);
-    if (payload.lessonId !== lessonId) throw new ForbiddenException('Token mismatch');
+    if (payload.lessonId !== lessonId)
+      throw new ForbiddenException('Token mismatch');
 
-    const manifestPath = path.join(this.storageBase, lessonId, 'manifest.mpd');
-    if (!fs.existsSync(manifestPath)) throw new NotFoundException('DASH manifest not found');
+    const manifestPath = this.resolveMediaPath(lessonId, 'manifest.mpd');
+    if (!fs.existsSync(manifestPath))
+      throw new NotFoundException('DASH manifest not found');
 
     res.setHeader('Content-Type', 'application/dash+xml');
     res.setHeader('Cache-Control', 'no-cache');
     fs.createReadStream(manifestPath).pipe(res);
   }
 
-  async streamRange(lessonId: string, token: string, rangeHeader: string, res: Response): Promise<void> {
-    this.verifyStreamToken(token);
-    const videoPath = path.join(this.storageBase, lessonId, 'video.mp4');
-    if (!fs.existsSync(videoPath)) throw new NotFoundException('Video not found');
+  async streamRange(
+    lessonId: string,
+    token: string,
+    rangeHeader: string,
+    res: Response,
+  ): Promise<void> {
+    const payload = this.verifyStreamToken(token);
+    if (payload.lessonId !== lessonId)
+      throw new ForbiddenException('Token mismatch');
+    const videoPath = this.resolveMediaPath(lessonId, 'video.mp4');
+    if (!fs.existsSync(videoPath))
+      throw new NotFoundException('Video not found');
 
     const stat = fs.statSync(videoPath);
     const fileSize = stat.size;
