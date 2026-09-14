@@ -305,7 +305,9 @@ describe('CoursesService', () => {
 
     it('throws NotFoundException when not enrolled', async () => {
       mockEnrollmentRepo.findOne.mockResolvedValue(null);
-      await expect(service.completeCourse('course-1', 'user-2')).rejects.toThrow(NotFoundException);
+      await expect(
+        service.completeCourse('course-1', 'user-2'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
