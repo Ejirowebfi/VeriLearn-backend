@@ -1,4 +1,10 @@
-import { Controller, Get, OnModuleDestroy } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -9,7 +15,8 @@ import Redis from 'ioredis';
 
 @ApiTags('health')
 @Controller('health')
-export class HealthController implements OnModuleDestroy {
+export class HealthController implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(HealthController.name);
   private readonly es: EsClient;
   private readonly redis: Redis;
 
@@ -27,6 +34,16 @@ export class HealthController implements OnModuleDestroy {
       lazyConnect: true,
       enableOfflineQueue: false,
     });
+  }
+
+  async onModuleInit() {
+    // Establish the Redis connection up front so the first health check
+    // doesn't race a still-connecting (lazyConnect) client.
+    try {
+      await this.redis.connect();
+    } catch (err) {
+      this.logger.warn(`Initial Redis connection failed: ${err.message}`);
+    }
   }
 
   async onModuleDestroy() {
