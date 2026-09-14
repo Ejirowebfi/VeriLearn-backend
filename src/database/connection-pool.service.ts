@@ -49,10 +49,16 @@ export class ConnectionPoolService implements OnModuleInit {
     if (this.failureCount >= this.failureThreshold) {
       this.state = CircuitState.OPEN;
       this.nextAttempt = Date.now() + this.recoveryTimeout;
-      this.logger.error(`Circuit breaker OPEN — will retry at ${new Date(this.nextAttempt).toISOString()}`);
+      this.logger.error(
+        `Circuit breaker OPEN — will retry at ${new Date(this.nextAttempt).toISOString()}`,
+      );
     }
   }
 
-  getState() { return this.state; }
-  isHealthy() { return this.dataSource.isInitialized && this.state !== CircuitState.OPEN; }
+  getState() {
+    return this.state;
+  }
+  isHealthy() {
+    return this.dataSource.isInitialized && this.state !== CircuitState.OPEN;
+  }
 }
